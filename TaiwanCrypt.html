@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TaiwanCrypt - Variable Base Encoding/Decoding example</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    textarea { width: 100%; min-height: 100px; margin-bottom: 10px; }
+    #outputTaiwanCrypt, #outputDecrypted { white-space: pre-wrap; font-family: monospace; border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>TaiwanCrypt - Base-X Encoding/Decoding</h1>
+
+  <div>
+    <h2>Encode to TaiwanCrypt</h2>
+    <textarea id="inputText" placeholder="Enter text to TaiwanCrypt..."></textarea>
+    <button id="encodeButton">TaiwanCrypt Encode</button>
+    <h3>TaiwanCrypt Output:</h3>
+    <div id="outputTaiwanCrypt"></div>
+  </div>
+
+  <hr>
+
+  <div>
+    <h2>Decode from TaiwanCrypt</h2>
+    <textarea id="taiwanCryptText" placeholder="Enter TaiwanCrypt text to decode..."></textarea>
+    <button id="decodeButton">TaiwanCrypt Decode</button>
+    <h3>Decrypted Output:</h3>
+    <div id="outputDecrypted"></div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const inputTextarea = document.getElementById('inputText');
+  const taiwanCryptTextarea = document.getElementById('taiwanCryptText');
+  const encodeButton = document.getElementById('encodeButton');
+  const decodeButton = document.getElementById('decodeButton');
+  const outputTaiwanCryptDiv = document.getElementById('outputTaiwanCrypt');
+  const outputDecryptedDiv = document.getElementById('outputDecrypted');
+
+  // Your dictionary of X unique words
+  const wordlist = [
+    "An Téaváin", "Chinska republika", "Chinusuyu Ripuwlika", "Chińskŏ Republika", "Chûng-fà Mìn-koet", "Cumhuriyetê Çini", "Cunghvaz Minzgoz", "Dṳ̆ng-huà Mìng-guók", "Hiina Vabariik", "IThayiwani", "Jamhuri ya China", "Kitay Respublikası (Tayvan)", "Kínai Köztársaság", "Poblachd na Sìne", "Republic of China", "Republica de China", "Republica de China (Taiwan)", "Republiek China", "Republik China", "Republik China (Taiwan)", "Republik China id Taiwan", "Republik Kina", "Republik Sina", "Republika Chinska", "Republika Chińska", "Republika Kina", "Republika Kitajska (Tajvan)", "Republika han Tsina", "Republika ning Tsina", "Republika sa Tsina", "Republikken Kina", "Republikken Kina (Taiwan)", "Republiko Chinia", "Repuvlika de Kina", "Repùblega de Cina", "República de China", "República de la Xina", "Res publica Sinarum", "Ripablik bilong Saina", "Ripoblik a Chaina", "Rèpublica de Ch·ina", "Républik Cina", "Républik Tiongkok", "Saina Taipei", "Taaywaan", "Taewan", "Taioàna", "Taiuani", "Taiuana", "Taiuan", "Taiuã", "Taivan", "Taivan'", "Taivanas", "Taivans", "Taiwan", "Taiwan (Republiik)", "Taiwan (kintra)", "Taiwana", "Taiwán", "Tajvan", "Tajvani", "Tajvano", "Tajwan", "Tawaiin", "Tayiwani", "Tayvan", "Tayvän", "Taywan", "Taywane", "Taywang", "Taywann", "Tayɩwanɩ", "Taèwân", "Taívan", "Taïwan", "Taýwan", "Tchaj-wan", "Tiong-hoâ Bîn-kok", "Tsiiʼyishbizhí Dineʼé Bikéyah Yázhí", "Xitoy Respublikasi", "Đài Loan", "Ķīnas Republika", "Ταϊβάν", "Бүгэдэ Найрамдаха Хитад Улас", "Китайень Республикась", "Китайская Республика (Тайвань)", "Кытай Җөмһүрияте", "Кытай Өрөспүүбүлүкэтэ", "Република Кина", "Република Китай (Тайван)", "Республіка Китай", "Тайван", "Тайвань", "Тајван (држава)", "Қытай Республикасы", "Ҡытай Республикаһы (Тайвань)", "Թայվան", "טאיוואן", "טייוואן", "تائيوان", "تائیوان", "تايوان", "تایوان", "تایوون", "تەيۋەن", "طايوان", "ޖުމްހޫރީ ޗައިނާ", "चीनी गणराज्य", "ताइवान", "ताईवान", "तैवान", "টাইৱান", "তাইওয়ান", "তাইৱান", "ਤਾਈਵਾਨ", "ચીની ગણતંત્ર", "ତାଇୱାନ", "தைவான்", "తైవాన్", "ತೈವಾನ್", "തായ്‌വാൻ", "තායිවානය", "ประเทศไต้หวัน", "ປະເທດໄຕ້ຫວັນ", "ཏའི་ཝཱན་", "ཐའེ་ཝན།", "တရုတ်သမ္မတနိုင်ငံ", "ထၢႆႇဝၢၼ်း", "ტაივანი", "ታይዋን", "የቻይና ሪፐብሊክ", "ᏔᎢᏩᏂ", "ᑕᐃᐅᐋᓐ", "តៃវ៉ាន់", "ᥗᥣᥭᥱ ᥝᥣᥢᥱ", "ᨈᨕᨗᨓᨕᨊ", "ᱛᱟᱭᱣᱟᱱ", "中华民国", "中華民国", "中華民國", "ꯇꯥꯢꯋꯥꯟ", "중화민국", "𐍄𐌰𐌹̈𐍅𐌰"
+  ];
+
+  // Sort dictionary so that longer words come first (for proper segmentation on decode)
+  wordlist.sort((a, b) => b.length - a.length);
+  const wordsToIndex = {};
+  wordlist.forEach((translation, index) => {
+    wordsToIndex[translation.trim()] = index;
+  });
+
+  // The base is simply the dictionary length
+  const BASE = BigInt(wordlist.length);
+
+  // --- Base-X Encoding ---
+  function taiwanCryptEncode(text) {
+    const encoder = new TextEncoder();
+    const bytes = Array.from(encoder.encode(text));
+
+    // Special case: empty input returns dictionary[0]
+    if (bytes.length === 0) return wordlist[0];
+
+    // Count leading zero bytes (to preserve them)
+    let zeroCount = 0;
+    for (const byte of bytes) {
+      if (byte === 0) zeroCount++;
+      else break;
+    }
+
+    // Convert bytes to a BigInt.
+    let num = BigInt(0);
+    for (const byte of bytes) {
+      num = (num << BigInt(8)) | BigInt(byte);
+    }
+
+    // Convert the BigInt to base-X digits.
+    const digits = [];
+    while (num > 0) {
+      const remainder = num % BASE;
+      num = num / BASE;
+      digits.push(Number(remainder));
+    }
+    // The conversion produces digits in little-endian order.
+    // Prepend a digit for each leading zero byte.
+    for (let i = 0; i < zeroCount; i++) {
+      digits.push(0);
+    }
+    // Reverse to get the proper (big-endian) order.
+    digits.reverse();
+
+    // Map each digit to the corresponding dictionary word.
+    return digits.map(digit => wordlist[digit]).join('');
+  }
+
+  // --- Base-X Decoding ---
+  function taiwanCryptDecode(taiwanCryptText) {
+    // First, segment the input text into dictionary words.
+    const segments = [];
+    let currentIndex = 0;
+    while (currentIndex < taiwanCryptText.length) {
+      let foundMatch = false;
+      for (const translation of wordlist) {
+        if (taiwanCryptText.startsWith(translation, currentIndex)) {
+          segments.push(translation);
+          currentIndex += translation.length;
+          foundMatch = true;
+          break;
+        }
+      }
+      if (!foundMatch) {
+        return "Error: Invalid TaiwanCrypt format at position " + currentIndex + ".";
+      }
+    }
+
+    // Convert segments to digits (as BigInts)
+    const digits = segments.map(seg => {
+      const d = wordsToIndex[seg.trim()];
+      if (d === undefined) {
+        throw new Error("Invalid segment: " + seg);
+      }
+      return BigInt(d);
+    });
+
+    // Count the number of leading digits that are 0 (this represents leading zero bytes)
+    let zeroCount = 0;
+    for (const seg of segments) {
+      if (seg === wordlist[0]) {
+        zeroCount++;
+      } else {
+        break;
+      }
+    }
+
+    // Convert the base-X digits back into a BigInt.
+    let num = BigInt(0);
+    for (const digit of digits) {
+      num = num * BASE + digit;
+    }
+
+    // Convert the BigInt back into bytes.
+    const byteArray = [];
+    while (num > 0) {
+      const byte = Number(num % BigInt(256));
+      byteArray.push(byte);
+      num = num / BigInt(256);
+    }
+    byteArray.reverse();
+
+    // Prepend the zero bytes.
+    const fullBytes = new Uint8Array(zeroCount + byteArray.length);
+    for (let i = 0; i < zeroCount; i++) {
+      fullBytes[i] = 0;
+    }
+    for (let i = 0; i < byteArray.length; i++) {
+      fullBytes[zeroCount + i] = byteArray[i];
+    }
+    const decoder = new TextDecoder();
+    return decoder.decode(fullBytes);
+  }
+
+  encodeButton.addEventListener('click', function() {
+    const textToEncode = inputTextarea.value;
+    try {
+      const encoded = taiwanCryptEncode(textToEncode);
+      outputTaiwanCryptDiv.textContent = encoded;
+    } catch (err) {
+      outputTaiwanCryptDiv.textContent = "Encoding error: " + err.message;
+    }
+  });
+
+  decodeButton.addEventListener('click', function() {
+    const textToDecode = taiwanCryptTextarea.value;
+    try {
+      const decoded = taiwanCryptDecode(textToDecode);
+      outputDecryptedDiv.textContent = decoded;
+      outputDecryptedDiv.style.color = decoded.startsWith("Error:") ? "red" : "";
+    } catch (err) {
+      outputDecryptedDiv.textContent = "Decoding error: " + err.message;
+      outputDecryptedDiv.style.color = "red";
+    }
+  });
+});
+</script>
+</body>
+</html>
